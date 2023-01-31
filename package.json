@@ -1,0 +1,33 @@
+{
+  "name": "aws4-express",
+  "version": "0.1.0",
+  "description": "Middleware for validation AWS Signature V4. Implement aws v4 in your web app.",
+  "main": "dist/index.js",
+  "scripts": {
+    "clean": "rimraf dist",
+    "prebuild": "npm run clean",
+    "build:ejs": "npx tsc -p tsconfig.json",
+    "build:cjs": "npx tsc -p tsconfig-cjs.json",
+    "build": "npm run build:ejs && npm run build:cjs",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "Express",
+    "middleware",
+    "handler",
+    "AWS",
+    "signature",
+    "verify",
+    "awsv4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jerzyadamowski/aws4-express.git"
+  },
+  "author": "Jerzy Adamowski",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/jerzyadamowski/aws4-express/issues"
+  },
+  "homepage": "https://github.com/jerzyadamowski/aws4-express#readme"
+}
