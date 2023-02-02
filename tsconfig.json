@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.lib.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "types": ["@types/mocha"]
+  },
+  "include": ["src/**/*"],
+  "exlucde": "eslint.config.js",
+  "ts-node": {
+    "files": true
+   }
+}

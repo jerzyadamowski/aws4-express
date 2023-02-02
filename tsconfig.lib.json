@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.base.json",
+  // Base config for common libraries
+  "compilerOptions": {
+    // Project Options
+    "declaration": true,
+    "lib": ["ES2022"],
+    "module": "commonjs",
+    "sourceMap": true,
+    "target": "es6"
+  }
+}
