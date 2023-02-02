@@ -4,33 +4,56 @@ Middleware for validation AWS Signature V4. Implement aws v4 in your web app.
 ## Install
 
 
-```
+```shell
 npm install aws4-express
 ```
 
 ## Use
 
-```
-import express from 'express';
+```typescript
+  import express from 'express';
 
-const app = express();
-... all required action with express middleware
+  const app = express();
+  app.use(express.urlencoded({ extended: true }));
+  if (options.isJsonParser) {
+    app.use(
+      express.json({
+        verify: rawBody,
+      }),
+    );
+  } else {
+    app.use(
+      express.raw({
+        type: '*/*',
+        verify: rawBody,
+      }),
+    );
+  }
 
-app.use(awsSignMiddleware)
+  app.use(awsSignMiddleware);
+  if (options.testRouter) {
+    app.all(routePath, options?.testRouter);
+  }
+
+  return app;
 ```
 
 ### Solution to parsed body (json, ...)
 
 1. Your use case will be different in two way whenever you will use parsedBody on previous middleware it could be something like this:
 
-```
+```typescript
 import express from 'express';
+
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
-app.use(
-  express.json(),
-);
+if (options.isJsonParser) {
+  app.use(
+    express.json({
+      verify: rawBody,
+    }),
+  );
 ```
 
 We need use orginal Body becasue on validation every bytes counts. Thats way we need rawBody and you can achive it like this with help:

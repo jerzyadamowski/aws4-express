@@ -1,6 +1,6 @@
 {
   "name": "aws4-express",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Middleware for validation AWS Signature V4. Implement aws v4 in your web app.",
   "main": "dist/index.js",
   "scripts": {
