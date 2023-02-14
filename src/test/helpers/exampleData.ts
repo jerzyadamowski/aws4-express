@@ -18,7 +18,7 @@ const credentialsPairsExample: Record<string, string> = {
 export const getAwsVerifyOptionsExample = (sampleData: Partial<AwsVerifyOptions> = {}): AwsVerifyOptions =>
   Object.assign<AwsVerifyOptions, Partial<AwsVerifyOptions>>(
     {
-      secretKey: (key: string) => credentialsPairsExample[key],
+      secretKey: (message) => credentialsPairsExample[message.accessKey],
     },
     sampleData,
   );

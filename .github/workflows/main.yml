@@ -1,111 +1,74 @@
-name: CI/CD 
+name: CI/CD
 
- 
+on:
+  push:
+    branches:
+      - master
 
-on: 
+jobs:
+  test:
+    runs-on: ubuntu-latest
 
-  push: 
+    steps:
+      - name: Checkout code
 
-    branches: 
+        uses: actions/checkout@v2
 
-      - master 
+      - name: Set up Node.js
 
- 
+        uses: actions/setup-node@v2
 
-jobs: 
+        with:
+          node-version: 14
 
-  test: 
+      - name: Install dependencies
 
-    runs-on: ubuntu-latest 
+        run: npm ci
 
- 
+      - name: Run tests
 
-    steps: 
+        run: npm test
 
-    - name: Checkout code 
+  release:
+    runs-on: ubuntu-latest
 
-      uses: actions/checkout@v2 
+    needs: test
 
- 
+    if: success()
 
-    - name: Set up Node.js 
+    steps:
+      - name: Checkout code
 
-      uses: actions/setup-node@v2 
+        uses: actions/checkout@v2
 
-      with: 
+      - name: Set up Node.js
 
-        node-version: 14 
+        uses: actions/setup-node@v2
 
- 
+        with:
+          node-version: 14
 
-    - name: Install dependencies 
+      - name: Install dependencies
 
-      run: npm ci 
+        run: npm ci
 
- 
+      - name: Create release
 
-    - name: Run tests 
+        uses: actions/create-release@v1
 
-      run: npm test 
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
- 
+        with:
+          tag_name: v${{ env.VERSION }}
 
-  release: 
+          release_name: Release v${{ env.VERSION }}
 
-    runs-on: ubuntu-latest 
+          body_path: changelog.md
 
-    needs: test 
+      - name: Publish to npm
 
-    if: success() 
+        run: npm publish
 
-     
-
-    steps: 
-
-    - name: Checkout code 
-
-      uses: actions/checkout@v2 
-
- 
-
-    - name: Set up Node.js 
-
-      uses: actions/setup-node@v2 
-
-      with: 
-
-        node-version: 14 
-
- 
-
-    - name: Install dependencies 
-
-      run: npm ci 
-
- 
-
-    - name: Create release 
-
-      uses: actions/create-release@v1 
-
-      env: 
-
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
-
-      with: 
-
-        tag_name: v${{ env.VERSION }} 
-
-        release_name: Release v${{ env.VERSION }} 
-
-        body_path: changelog.md 
-
- 
-
-    - name: Publish to npm 
-
-      run: npm publish 
-
-      env: 
-
-        NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }} 
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
