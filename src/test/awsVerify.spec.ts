@@ -303,4 +303,147 @@ describe('awsVerify', () => {
       ),
     );
   });
+
+  it('should not validate request with aws4 onBeforeParse when limit api', async () => {
+    const optionsAwsVerify = getAwsVerifyOptionsExample({
+      onBeforeParse: (_req, res, _next) => {
+        res.status(429).send('Api limit');
+        return false;
+      },
+    });
+    const optionsAwsSigned = postExample();
+    const credentials = getCredentialsExample();
+
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 429);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 429);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 429);
+  });
+
+  it('should not validate request with aws4 onAfterParse when limit api', async () => {
+    const optionsAwsVerify = getAwsVerifyOptionsExample({
+      onAfterParse: (_message, _req, res, _next) => {
+        res.status(429).send('Api limit');
+        return false;
+      },
+    });
+    const optionsAwsSigned = postExample();
+    const credentials = getCredentialsExample();
+
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 429);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 429);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 429);
+  });
+  it('should not validate request with aws4 onSuccess something goes wrong and need to notify user', async () => {
+    const optionsAwsVerify = getAwsVerifyOptionsExample({
+      onSuccess: (_message, _req, res, _next) => {
+        res.status(500).send('Server error');
+        // next('Server error');
+      },
+    });
+    const optionsAwsSigned = postExample();
+    const credentials = getCredentialsExample();
+
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 500);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 500);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 500);
+  });
+  it('should not validate request with aws4 onExpired header', async () => {
+    const optionsAwsVerify = getAwsVerifyOptionsExample({
+      onExpried: (_req, res, _next) => {
+        res.status(408).send('Request expired.');
+      },
+    });
+    const optionsAwsSigned = postExample({
+      headers: { ...postExample().headers, [Headers.XAmzExpires]: '60', [Headers.XAmzDate]: '20220101T000000Z' },
+    });
+    const credentials = getCredentialsExample();
+
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 408);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 408);
+    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 408);
+  });
+  it('should not validate request with aws4 missing authorization and xAmzDate', async () => {
+    const optionsAwsVerify = getAwsVerifyOptionsExample({
+      onMissingHeaders: (_req, res, _next) => {
+        res.status(417).send('Expectation failed');
+      },
+    });
+    const optionsAwsSigned = postExample();
+    const credentials = getCredentialsExample();
+    const afterSignedRequest = {
+      ...optionsAwsSigned,
+      headers: {
+        ...optionsAwsSigned.headers,
+        'X-Amz-Date': '',
+      },
+    };
+
+    await sendSignedRequest(
+      optionsAwsVerify,
+      optionsAwsSigned,
+      { parser: 'raw' },
+      credentials,
+      417,
+      afterSignedRequest,
+      '',
+    );
+    await sendSignedRequest(
+      optionsAwsVerify,
+      optionsAwsSigned,
+      { parser: 'json' },
+      credentials,
+      417,
+      afterSignedRequest,
+      '',
+    );
+    await sendSignedRequest(
+      optionsAwsVerify,
+      optionsAwsSigned,
+      { parser: 'custom' },
+      credentials,
+      417,
+      afterSignedRequest,
+      '',
+    );
+  });
+  it('should not validate request with aws4 mismatch signature', async () => {
+    const optionsAwsVerify = getAwsVerifyOptionsExample({
+      onSignatureMismatch: (_req, res, _next) => {
+        res.status(400).send('Invalid Signature');
+      },
+    });
+    const optionsAwsSigned = postExample();
+    const credentials = getCredentialsExample();
+
+    const authorization =
+      'AWS4-HMAC-SHA256 Credential=test/2011/us-east-1/execute-api/aws4_request, SignedHeaders=accept-encoding;cache-control;content-length;content-type;host;user-agent;x-amz-date, Signature=0230022437e5f1b668997ede2e55d4b00c7a3af802d000a2788d7b3c057503a4';
+
+    await sendSignedRequest(
+      optionsAwsVerify,
+      optionsAwsSigned,
+      { parser: 'raw' },
+      credentials,
+      400,
+      undefined,
+      authorization,
+    );
+    await sendSignedRequest(
+      optionsAwsVerify,
+      optionsAwsSigned,
+      { parser: 'json' },
+      credentials,
+      400,
+      undefined,
+      authorization,
+    );
+    await sendSignedRequest(
+      optionsAwsVerify,
+      optionsAwsSigned,
+      { parser: 'custom' },
+      credentials,
+      400,
+      undefined,
+      authorization,
+    );
+  });
 });
