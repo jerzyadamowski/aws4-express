@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: [ 14, 16, 18 ]
+        node: [14, 16, 18]
     name: Node ${{ matrix.node }} sample
     steps:
       - uses: actions/checkout@v3
@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - run: npm ci
+      - run: npm run lint
       - run: npm test
 
   publish-npm:

@@ -1,13 +1,11 @@
 module.exports = {
-  ignorePatterns: ['**/tsconfig*.json', '.vscode/**', 'eslint.config.js'],
+  ignorePatterns: ['**/tsconfig*.json', '.vscode/**'],
   env: {
-    browser: true,
     es6: true,
     node: true,
     es2017: true,
     es2020: true,
     mocha: true,
-    jest: true,
   },
   extends: [
     // Must be last
