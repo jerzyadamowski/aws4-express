@@ -5,7 +5,7 @@
     "types": ["@types/mocha"]
   },
   "include": ["src/**/*"],
-  "exlucde": "",
+  "exlucde": [".eslintrc.js"],
   "ts-node": {
     "files": true
    }
