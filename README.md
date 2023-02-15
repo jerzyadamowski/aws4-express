@@ -73,7 +73,7 @@ If you use express parsers like `express.raw()` or `express.json()` you can atta
 ## Features:
 
 - [x] General implementation standard: aws4 signature.
-- [p] Fully customized.
+- [x] Fully customized.
 - [x] No strict rules on services, regions you can name it as you want as long your signing client support this.
 - [x] Single chunk request
 - [x] Tests with client: [aws4](https://www.npmjs.com/package/aws4)
