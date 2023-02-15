@@ -31,6 +31,8 @@ jobs:
         run: npm version patch
       - name: Git push version bump
         run: git push origin main --follow-tags --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: set-version
         name: Output version change
         run: npm pkg get version
