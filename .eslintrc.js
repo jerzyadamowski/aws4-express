@@ -1,5 +1,5 @@
 module.exports = {
-  ignorePatterns: ['**/tsconfig*.json', '.vscode/**'],
+  ignorePatterns: ['**/tsconfig*.json', '.vscode/**', 'dist/**'],
   env: {
     es6: true,
     node: true,
