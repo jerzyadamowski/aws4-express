@@ -11,7 +11,7 @@ export type Dictionary = Record<string, string | string[] | undefined>;
  */
 export interface AwsVerifyOptions {
   /**
-   * Callback for secretKey. You have to provide process to get proper secret.
+   * Callback for secretKey. You have to provide process to get proper secret or return undefined secret.
    *
    * @param message { AwsIncomingMessage }
    * @param req { Request }

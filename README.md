@@ -55,7 +55,7 @@ If you use express parsers like `express.raw()` or `express.json()` you can atta
     secretKey: (message, req, res, next) => {
       // fetch secret key from your storage key/secret pairs (sql, nosql, memory)
       // you have to provide your own secret provider here.
-      // retrun string
+      // retrun string | undefined
 
       return getMySecretByKey(message.accessKey),
     }
@@ -112,15 +112,20 @@ Pull Requests are welcome.
  */
 export interface AwsVerifyOptions {
   /**
-   * Callback for secretKey. You have to provide process to get proper secret.
+   * Callback for secretKey. You have to provide process to get proper secret or return undefined secret.
    *
    * @param message { AwsIncomingMessage }
    * @param req { Request }
    * @param res { Response }
    * @param next { NextFunction }
-   * @returns { string } - Should return secretKey on incoming parameters
+   * @returns { Promise<string | undefined> | string | undefined } - Should return secretKey on incoming parameters - but if secret is missing which it will be normal case when someone want to guess - you should return undefined;
    */
-  secretKey: (message: AwsIncomingMessage, req: Request, res: Response, next: NextFunction) => Promise<string> | string;
+  secretKey: (
+    message: AwsIncomingMessage,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => Promise<string | undefined> | string | undefined;
   /**
    * Callback for changes in incoming headers before it goes through parse process. Help to more sophisticated changes to preserve proper headers.
    *
