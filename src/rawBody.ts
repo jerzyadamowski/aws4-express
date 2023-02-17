@@ -1,4 +1,4 @@
-import { IncomingMessage } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import { NextFunction, Request, Response } from 'express';
 import { Headers } from './headers';
 
@@ -10,7 +10,7 @@ export interface IncomingMessageRB extends IncomingMessage {
   rawBody: string;
 }
 
-export const rawBodyFromVerify = (req: IncomingMessageRB, _res: any, buf: Buffer, encoding: string) => {
+export const rawBodyFromVerify = (req: IncomingMessageRB, _res: ServerResponse, buf: Buffer, encoding: string) => {
   if (buf && buf.length && !req.headers[Headers.XAmzContentSha256]) {
     req.rawBody = buf.toString((encoding as BufferEncoding) || 'utf8') ?? '';
   }
