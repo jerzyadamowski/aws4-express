@@ -17,14 +17,19 @@ export interface AwsVerifyOptions {
    * @param req { Request }
    * @param res { Response }
    * @param next { NextFunction }
-   * @returns { string } - Should return secretKey on incoming parameters
+   * @returns { Promise<string | undefined> | string | undefined } - Should return secretKey on incoming parameters - but if secret is missing which it will be normal case when someone want to guess - you should return undefined;
    */
-  secretKey: (message: AwsIncomingMessage, req: Request, res: Response, next: NextFunction) => Promise<string> | string;
+  secretKey: (
+    message: AwsIncomingMessage,
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => Promise<string | undefined> | string | undefined;
   /**
    * Callback for changes in incoming headers before it goes through parse process. Help to more sophisticated changes to preserve proper headers.
    *
    * @param headers { Dictionary }
-   * @returns { Dictionary } - Should return fixed incoming headers
+   * @returns { Promise<Dictionary> | Dictionary } - Should return fixed incoming headers
    */
   headers?: (headers: Dictionary) => Promise<Dictionary> | Dictionary;
   /**
@@ -288,6 +293,10 @@ export class AwsSignature {
     };
 
     this.secretKey = await this.options.secretKey(this.message, req, res, next);
+    if (!this.secretKey) {
+      await this.options.onSignatureMismatch?.(req, res, next);
+      return false;
+    }
 
     if (!(await this.options.onAfterParse?.(this.message, req, res, next))) {
       return false;
@@ -316,7 +325,7 @@ export class AwsSignature {
   };
 
   protected signature = () => {
-    if (!this.message) {
+    if (!this.message || !this.secretKey) {
       throw new Error('Missing parsed incoming message');
     }
 

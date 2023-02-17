@@ -123,6 +123,13 @@ describe('awsVerify', () => {
       { accessKeyId: '1', secretAccessKey: '2' },
       401,
     );
+    await sendSignedRequest(
+      optionsAwsVerify,
+      options,
+      { parser: 'custom' },
+      { accessKeyId: '1', secretAccessKey: undefined },
+      401,
+    );
   });
 
   it('should validate request with aws4 body unsigned with UNSIGNED-PAYLOAD', async () => {
