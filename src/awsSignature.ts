@@ -1,7 +1,6 @@
 import crypto, { BinaryLike, KeyObject } from 'crypto';
 import querystring from 'querystring';
 import { NextFunction, Request, Response } from 'express';
-import { RequestRB } from './rawBody';
 import { Headers } from './headers';
 
 export type Dictionary = Record<string, string | string[] | undefined>;
@@ -231,7 +230,7 @@ export class AwsSignature {
     const xAmzDate = req.header(Headers.XAmzDate);
     const xAmzExpires = Number(req.header(Headers.XAmzExpires));
     const contentSha256 = req.header(Headers.XAmzContentSha256);
-    const bodyHash = contentSha256 || this.hash((req as RequestRB).rawBody ?? '');
+    const bodyHash = contentSha256 || this.hash((req as any).rawBody ?? '');
     const { path, query } = this.parsePath(req.url);
     const method = req.method;
 

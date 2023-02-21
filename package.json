@@ -1,6 +1,6 @@
 {
   "name": "aws4-express",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Express middleware handlers for validation AWS Signature V4",
   "main": "dist/index.js",
   "scripts": {

@@ -20,18 +20,13 @@ npm install aws4-express
 
 There are prepared helpers to handle the original body with any changes, because if you change a single character, your request won't be valid anymore.
 
-If you use express parsers like `express.raw()` or `express.json()` you can attach with handler `rawBodyFromVerify`. You can also write own stream parser or use our `rawBodyFromStream`.
-
-**Don't mix express.json(), express.raw() or custom parser together in single configuration** - example below show different way to achieve to pull out raw body.
-
+If you use express parsers like `express.raw()` or `express.json()` or `express.urlencoded` you can attach with handler `rawBodyFromVerify`. You can also write own stream parser or use our `rawBodyFromStream`.
 
 ```typescript
   import express from 'express';
   import { awsVerify, rawBodyFromVerify, rawBodyFromStream } from 'aws4-express';
 
   const app = express();
-  app.use(express.urlencoded({ extended: true }));
-
   // whenever you may need to get original body string and you case
   // when json parser u may use like this
   app.use(
@@ -46,6 +41,13 @@ If you use express parsers like `express.raw()` or `express.json()` you can atta
       type: '*/*',
       verify: rawBodyFromVerify,
     })
+  );
+
+  // or when url encoded body u may use like this
+  app.use(
+    express.urlencoded({
+      verify: rawBodyFromVerify,
+    }),
   );
 
   // or events on when json parser u may use like this
@@ -82,25 +84,25 @@ If you use express parsers like `express.raw()` or `express.json()` you can atta
 
 ## Supported headers:
 
-- `authorization` - must have in proper format: **Authorization: AWS4-HMAC-SHA256
-Credential=< ACCESS_KEY>/< DATE>/< REGION>/< SERVICE>/< TYPE_REQUEST>,
+- `authorization` - [required] must have in proper format: **Authorization: AWS4-HMAC-SHA256
+Credential=`ACCESS_KEY`/`DATE`/`REGION`/`SERVICE`/`TYPE_REQUEST`,
 SignedHeaders=< SIGNED_HEADERS>,
-Signature=< SIGNATURE>** :
-  * **ACCESS_KEY** - any text without whitespaces and slashes (/) - Only have to do is handle distribution of access_key, secret_key and these keys have to be accessible on the server side.
-  * **DATE** - is part of X-AMZ-DATE: in format YYYYMMDD.
-  * **REGION** - any thing you need in this place or use something from [amz regions](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html).
-  * **SERVICE** - any thing you need in this place or 'execute-api' for sake of simplicity.
-  * **TYPE_REQUEST** - you can use your variations instead  of standard 'aws4_request'.
-  * **SIGNED_HEADERS** - all signed headers - more headers mean harder to temper request. Required headers at this moment: *host:x-amz-date*
-  * **SIGNATURE** - calculated signature based on [Authenticating Requests (AWS Signature Version 4)](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html)
-- `x-amz-date` - must have in request to valid request signature
-- `x-amz-content-sha256` - [optional] you can attach this kind of header and remove all `bodyRaw` readers.
-  * You can also send **UNSIGNED-PAYLOAD** instead of sha-256 signature - this cloud speed up your bigger request, but signature will be same as long as headers remain same.
+Signature=`SIGNATURE`** :
+  * `ACCESS_KEY` - any text without whitespaces and slashes (/) - Only have to do is handle distribution of access_key, secret_key and these keys have to be accessible on the server side.
+  * `DATE` - is part of X-AMZ-DATE: in format YYYYMMDD.
+  * `REGION` - any thing you need in this place or use something from [amz regions](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html).
+  * `SERVICE` - any thing you need in this place or 'execute-api' for sake of simplicity.
+  * `TYPE_REQUEST` - you can use your variations instead  of standard 'aws4_request'.
+  * `SIGNED_HEADERS` - all signed headers - more headers mean harder to temper request. Required headers at this moment: *host:x-amz-date*
+  * `SIGNATURE` - calculated signature based on [Authenticating Requests (AWS Signature Version 4)](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html)
+- `x-amz-date` - [required] must have in request to valid request signature
+- `x-amz-content-sha256` - [optional] you can attach precalculated hash. When X-Amz-Content-Sha256 is sent we skip calculating hash from body. This way is less secure and recommended use at least with `X-Amz-Expires`.
+  * There can provide your validation whenever you want handle this header `onBeforeParse` or `onAfterParse`.
+  * You can also send `UNSIGNED-PAYLOAD` instead of sha-256 signature - this cloud speed up your bigger request, but signature will be same as long as headers remain same.
   * You can put your signature (most client don't include these headers) - should be calculated in this way:
     ```
     crypto.createHash('sha256').update(data, 'utf8').digest('hex')
     ```
-  * When you set this header in your request, `body parser` won't read `raw body` because this is redundant information. Literally, this means skip body calculation hash because I got body hash for you in this header.
 - `x-amz-expires` - [optional] - format: `YYYY-mm-ddTHH:MM:SS`. If you want valid your request for a period of time and don't want to reuse signature when time is up.
 
 Pull Requests are welcome.
@@ -279,10 +281,10 @@ export interface AwsIncomingMessage {
 
 ### awsVerify:
 
+#### Complete options configuration for `awsVerify`:
 ```typescript
 express.use(awsVerify({
-
-  secretKey: (message: AwsIncomingMessage, req: Request, res: Response, next: NextFunction) => Promise<string> | string;
+  secretKey: (message: AwsIncomingMessage, req: Request, res: Response, next: NextFunction) => Promise<string | undefined> | string | undefined;
   headers?: (headers: Dictionary) => Promise<Dictionary> | Dictionary;
   enabled?: (req: Request) => Promise<boolean> | boolean;
   onMissingHeaders?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
@@ -302,6 +304,26 @@ express.use(awsVerify({
     next: NextFunction,
   ) => Promise<void> | void;
 }))
+```
+
+#### Default values for all optional configuration for `awsVerify`:
+```typescript
+  {
+      enabled: () => true,
+      headers: (req) => req.headers,
+      onExpried: (res) => {
+        res.status(401).send('Request is expired');
+      },
+      onMissingHeaders: (res) => {
+        res.status(400).send('Required headers are missing');
+      },
+      onSignatureMismatch: (res) => {
+        res.status(401).send('The signature does not match');
+      },
+      onBeforeParse: () => true,
+      onAfterParse: () => true,
+      onSuccess: () => next()
+  }
 ```
 
 

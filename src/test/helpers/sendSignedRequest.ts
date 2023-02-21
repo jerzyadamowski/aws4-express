@@ -3,10 +3,13 @@ import request from 'supertest';
 import { sign, Request as Aws4Request, Credentials as Aws4Credentials } from 'aws4';
 import { awsVerify, AwsVerifyOptions, rawBodyFromStream, rawBodyFromVerify } from '../..';
 
-export type MethodTypes = 'get' | 'post' | 'put' | 'delete';
+export const methods = ['get', 'post', 'put', 'delete'] as const;
+export type MethodTypes = (typeof methods)[number];
+export const parsers = ['json', 'urlencoded', 'raw', 'custom', 'none'] as const;
+export type ParserTypes = (typeof parsers)[number];
 
 export interface ExpressAppOptions {
-  parser: 'json' | 'raw' | 'custom' | 'none';
+  parser: ParserTypes;
   path: string;
   testRouter: (req: Request, res: Response, next: NextFunction) => void;
 }
@@ -14,11 +17,21 @@ export interface ExpressAppOptions {
 const expressApp = (optionsAwsVerify: AwsVerifyOptions, optionsExpress: ExpressAppOptions) => {
   const routePath = optionsExpress.path.substring(0, optionsExpress.path.indexOf('?')) ?? '/';
   const app = express();
-  app.use(express.urlencoded({ extended: true }));
   switch (optionsExpress.parser) {
     case 'json': {
       app.use(
         express.json({
+          type: '*/*',
+          verify: rawBodyFromVerify,
+        }),
+      );
+      break;
+    }
+    case 'urlencoded': {
+      app.use(
+        express.urlencoded({
+          extended: true,
+          type: '*/*',
           verify: rawBodyFromVerify,
         }),
       );

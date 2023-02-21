@@ -1,7 +1,13 @@
 import sinon from 'sinon';
 import { Headers } from '../headers';
-import { getExample, postExample, getAwsVerifyOptionsExample, getCredentialsExample } from './helpers/exampleData';
-import { sendSignedRequest } from './helpers/sendSignedRequest';
+import {
+  getExample,
+  postExample,
+  getAwsVerifyOptionsExample,
+  getCredentialsExample,
+  credentialsPairsExample,
+} from './helpers/exampleData';
+import { multiParserRequest } from './helpers/multiParserRequest';
 
 describe('awsVerify', () => {
   let sandbox: sinon.SinonSandbox;
@@ -24,9 +30,7 @@ describe('awsVerify', () => {
     const optionsAwsSigned = getExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200);
   });
 
   it('should validate POST request with aws4 signature', async () => {
@@ -34,9 +38,7 @@ describe('awsVerify', () => {
     const optionsAwsSigned = postExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200);
   });
 
   it('should validate PUT request with aws4 signature', async () => {
@@ -44,9 +46,7 @@ describe('awsVerify', () => {
     const optionsAwsSigned = postExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, { ...credentials }, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, { ...credentials }, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, { ...credentials }, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, { ...credentials }, 200);
   });
 
   it('should validate DELETE request with aws4 signature', async () => {
@@ -54,35 +54,20 @@ describe('awsVerify', () => {
     const optionsAwsSigned = postExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200);
   });
 
   it('should validate GET request with aws4 signature with credentials available on server side', async () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample();
     const options = getExample();
-
-    await sendSignedRequest(
-      optionsAwsVerify,
-      options,
-      { parser: 'raw' },
-      { accessKeyId: 'test1', secretAccessKey: 'test1' },
-      200,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      options,
-      { parser: 'json' },
-      { accessKeyId: 'test2', secretAccessKey: 'test2' },
-      200,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      options,
-      { parser: 'custom' },
-      { accessKeyId: 'test3', secretAccessKey: 'test3' },
-      200,
+    const keys = Object.keys(credentialsPairsExample).map((k) => ({
+      accessKey: k,
+      secretKey: credentialsPairsExample[k],
+    }));
+    await Promise.all(
+      keys.map((k) =>
+        multiParserRequest(optionsAwsVerify, options, { accessKeyId: k.accessKey, secretAccessKey: k.secretKey }, 200),
+      ),
     );
   });
 
@@ -93,43 +78,17 @@ describe('awsVerify', () => {
     });
     const credentials = getCredentialsExample({});
 
-    await sendSignedRequest(optionsAwsVerify, options, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, options, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, options, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, options, credentials, 200);
   });
 
   it('should not validate request with aws4 signature incorrect credentials', async () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample();
     const options = getExample();
 
-    await sendSignedRequest(
-      optionsAwsVerify,
-      options,
-      { parser: 'raw' },
-      { accessKeyId: 'xyz', secretAccessKey: 'test' },
-      401,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      options,
-      { parser: 'json' },
-      { accessKeyId: 'test', secretAccessKey: 'test1' },
-      401,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      options,
-      { parser: 'custom' },
-      { accessKeyId: '1', secretAccessKey: '2' },
-      401,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      options,
-      { parser: 'custom' },
-      { accessKeyId: '1', secretAccessKey: undefined },
-      401,
-    );
+    await multiParserRequest(optionsAwsVerify, options, { accessKeyId: 'xyz', secretAccessKey: 'test' }, 401);
+    await multiParserRequest(optionsAwsVerify, options, { accessKeyId: 'test', secretAccessKey: 'test1' }, 401);
+    await multiParserRequest(optionsAwsVerify, options, { accessKeyId: '1', secretAccessKey: '2' }, 401);
+    await multiParserRequest(optionsAwsVerify, options, { accessKeyId: '1', secretAccessKey: undefined }, 401);
   });
 
   it('should validate request with aws4 body unsigned with UNSIGNED-PAYLOAD', async () => {
@@ -139,9 +98,7 @@ describe('awsVerify', () => {
     });
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200);
   });
 
   it('should validate request with aws4 with time greater than now', async () => {
@@ -151,9 +108,7 @@ describe('awsVerify', () => {
     });
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200);
   });
 
   it('should validate request with aws4 with time equal now', async () => {
@@ -163,9 +118,7 @@ describe('awsVerify', () => {
     });
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200);
   });
 
   it('should not validate request with aws4 with time lesser than now', async () => {
@@ -175,9 +128,7 @@ describe('awsVerify', () => {
     });
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 401);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 401);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 401);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 401);
   });
 
   it('should validate request with aws4 on ignore validation', async () => {
@@ -187,9 +138,7 @@ describe('awsVerify', () => {
     const optionsAwsSigned = postExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 200);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 200);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200);
   });
 
   it('should validate request with aws4 when original host was replaced by routers inside your network', async () => {
@@ -212,30 +161,7 @@ describe('awsVerify', () => {
       },
     };
 
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'raw' },
-      credentials,
-      200,
-      afterSignedRequest,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'json' },
-      credentials,
-      200,
-      afterSignedRequest,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'custom' },
-      credentials,
-      200,
-      afterSignedRequest,
-    );
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 200, afterSignedRequest);
   });
 
   it('should not validate request with aws4 with replaced host', async () => {
@@ -252,30 +178,7 @@ describe('awsVerify', () => {
       },
     };
 
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'raw' },
-      credentials,
-      401,
-      afterSignedRequest,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'json' },
-      credentials,
-      401,
-      afterSignedRequest,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'custom' },
-      credentials,
-      401,
-      afterSignedRequest,
-    );
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 401, afterSignedRequest);
   });
 
   it('should not validate request with incorrect authorization header', async () => {
@@ -298,10 +201,9 @@ describe('awsVerify', () => {
     await Promise.all(
       strangeAuthorizationHeaders.map(
         async (modifiedAuthorization) =>
-          await sendSignedRequest(
+          await multiParserRequest(
             optionsAwsVerify,
             optionsAwsSigned,
-            { parser: 'raw' },
             credentials,
             401,
             undefined,
@@ -321,9 +223,7 @@ describe('awsVerify', () => {
     const optionsAwsSigned = postExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 429);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 429);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 429);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 429);
   });
 
   it('should not validate request with aws4 onAfterParse when limit api', async () => {
@@ -336,9 +236,7 @@ describe('awsVerify', () => {
     const optionsAwsSigned = postExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 429);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 429);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 429);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 429);
   });
   it('should not validate request with aws4 onSuccess something goes wrong and need to notify user', async () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample({
@@ -350,9 +248,7 @@ describe('awsVerify', () => {
     const optionsAwsSigned = postExample();
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 500);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 500);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 500);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 500);
   });
   it('should not validate request with aws4 onExpired header', async () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample({
@@ -365,9 +261,7 @@ describe('awsVerify', () => {
     });
     const credentials = getCredentialsExample();
 
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'raw' }, credentials, 408);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'json' }, credentials, 408);
-    await sendSignedRequest(optionsAwsVerify, optionsAwsSigned, { parser: 'custom' }, credentials, 408);
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 408);
   });
   it('should not validate request with aws4 missing authorization and xAmzDate', async () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample({
@@ -385,33 +279,7 @@ describe('awsVerify', () => {
       },
     };
 
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'raw' },
-      credentials,
-      417,
-      afterSignedRequest,
-      '',
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'json' },
-      credentials,
-      417,
-      afterSignedRequest,
-      '',
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'custom' },
-      credentials,
-      417,
-      afterSignedRequest,
-      '',
-    );
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 417, afterSignedRequest, '');
   });
   it('should not validate request with aws4 mismatch signature', async () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample({
@@ -425,32 +293,6 @@ describe('awsVerify', () => {
     const authorization =
       'AWS4-HMAC-SHA256 Credential=test/2011/us-east-1/execute-api/aws4_request, SignedHeaders=accept-encoding;cache-control;content-length;content-type;host;user-agent;x-amz-date, Signature=0230022437e5f1b668997ede2e55d4b00c7a3af802d000a2788d7b3c057503a4';
 
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'raw' },
-      credentials,
-      400,
-      undefined,
-      authorization,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'json' },
-      credentials,
-      400,
-      undefined,
-      authorization,
-    );
-    await sendSignedRequest(
-      optionsAwsVerify,
-      optionsAwsSigned,
-      { parser: 'custom' },
-      credentials,
-      400,
-      undefined,
-      authorization,
-    );
+    await multiParserRequest(optionsAwsVerify, optionsAwsSigned, credentials, 400, undefined, authorization);
   });
 });

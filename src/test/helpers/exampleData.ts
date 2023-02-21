@@ -7,7 +7,7 @@ const awsOptions = {
   region: 'eu-central-1',
 };
 
-const credentialsPairsExample: Record<string, string> = {
+export const credentialsPairsExample: Record<string, string> = {
   xyz: 'xyz',
   test: 'test',
   test1: 'test1',
