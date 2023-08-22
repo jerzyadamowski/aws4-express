@@ -61,7 +61,7 @@ export interface AwsVerifyOptions {
    */
   onSignatureMismatch?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
   /**
-   * Custom response on exired time signature. Validation stops here. Default value `onExpried: () => {
+   * Custom response on exired time signature. Validation stops here. Default value `onExpired: () => {
           res.status(401).send('Request is expired');
         },`
    *
@@ -70,7 +70,7 @@ export interface AwsVerifyOptions {
    * @param next { NextFunction }
    * @returns  { Promise<void> | void }
    */
-  onExpried?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
+  onExpired?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
   /**
    * Custom callback before standard parser comes. On false validation stops here. Default value `onBeforeParse: () => true,`
    *
@@ -184,7 +184,7 @@ export class AwsSignature {
       this.options = {
         enabled: () => true,
         headers: () => req.headers,
-        onExpried: () => {
+        onExpired: () => {
           res.status(401).send('Request is expired');
         },
         onMissingHeaders: () => {
@@ -243,7 +243,7 @@ export class AwsSignature {
     // if xAmzExpires not set will be ignored.
     const expired = this.expires(xAmzDate, xAmzExpires);
     if (expired) {
-      return await this.options.onExpried?.(req, res, next);
+      return await this.options.onExpired?.(req, res, next);
     }
 
     // Extract the necessary information from the authorization header

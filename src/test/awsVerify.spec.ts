@@ -242,7 +242,6 @@ describe('awsVerify', () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample({
       onSuccess: (_message, _req, res, _next) => {
         res.status(500).send('Server error');
-        // next('Server error');
       },
     });
     const optionsAwsSigned = postExample();
@@ -252,7 +251,7 @@ describe('awsVerify', () => {
   });
   it('should not validate request with aws4 onExpired header', async () => {
     const optionsAwsVerify = getAwsVerifyOptionsExample({
-      onExpried: (_req, res, _next) => {
+      onExpired: (_req, res, _next) => {
         res.status(408).send('Request expired.');
       },
     });

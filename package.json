@@ -1,6 +1,6 @@
 {
   "name": "aws4-express",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Express middleware handlers for validation AWS Signature V4",
   "main": "dist/index.js",
   "scripts": {
@@ -43,7 +43,8 @@
     "typescript": "^4"
   },
   "keywords": [
-    "Express",
+    "aws4-express",
+    "express",
     "middleware",
     "handler",
     "AWS",
