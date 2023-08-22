@@ -166,7 +166,7 @@ export interface AwsVerifyOptions {
    */
   onSignatureMismatch?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
   /**
-   * Custom response on exired time signature. Validation stops here. Default value `onExpried: () => {
+   * Custom response on exired time signature. Validation stops here. Default value `onExpired: () => {
           res.status(401).send('Request is expired');
         },`
    *
@@ -175,7 +175,7 @@ export interface AwsVerifyOptions {
    * @param next { NextFunction }
    * @returns  { Promise<void> | void }
    */
-  onExpried?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
+  onExpired?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
   /**
    * Custom callback before standard parser comes. On false validation stops here. Default value `onBeforeParse: () => true,`
    *
@@ -289,7 +289,7 @@ express.use(awsVerify({
   enabled?: (req: Request) => Promise<boolean> | boolean;
   onMissingHeaders?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
   onSignatureMismatch?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
-  onExpried?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
+  onExpired?: (req: Request, res: Response, next: NextFunction) => Promise<void> | void;
   onBeforeParse?: (req: Request, res: Response, next: NextFunction) => Promise<boolean> | boolean;
   onAfterParse?: (
     message: AwsIncomingMessage,
@@ -311,7 +311,7 @@ express.use(awsVerify({
   {
       enabled: () => true,
       headers: (req) => req.headers,
-      onExpried: (res) => {
+      onExpired: (res) => {
         res.status(401).send('Request is expired');
       },
       onMissingHeaders: (res) => {

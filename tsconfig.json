@@ -2,7 +2,7 @@
   "extends": "./tsconfig.lib.json",
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["@types/mocha"]
+    "types": ["mocha"]
   },
   "include": ["src/**/*"],
   "exlucde": [".eslintrc.js"],
