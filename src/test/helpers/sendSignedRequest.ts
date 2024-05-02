@@ -1,3 +1,4 @@
+import http from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import request from 'supertest';
 import { sign, Request as Aws4Request, Credentials as Aws4Credentials } from 'aws4';
@@ -81,7 +82,7 @@ export const sendSignedRequest = async (
       ...signedRequest.headers,
       ...afterSignedRequest?.headers,
       ['Authorization']: afterAuthorizationSignature ?? signedRequest.headers?.Authorization,
-    },
+    } as http.IncomingHttpHeaders,
   };
 
   const method = optionsAwsSigned.method?.toLowerCase() ?? 'NOT IMPLEMENTED';
