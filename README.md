@@ -72,6 +72,7 @@ If you use express parsers like `express.raw()` or `express.json()` or `express.
   app.post('/post', ...);
 
   return app;
+```
 
 ## Example:
 
