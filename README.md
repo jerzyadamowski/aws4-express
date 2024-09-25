@@ -31,6 +31,7 @@ If you use express parsers like `express.raw()` or `express.json()` or `express.
   // when json parser u may use like this
   app.use(
     express.json({
+      type: '*/*',
       verify: rawBodyFromVerify,
     }),
   );
@@ -46,6 +47,8 @@ If you use express parsers like `express.raw()` or `express.json()` or `express.
   // or when url encoded body u may use like this
   app.use(
     express.urlencoded({
+      extended: true,
+      type: '*/*',
       verify: rawBodyFromVerify,
     }),
   );

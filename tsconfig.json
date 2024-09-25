@@ -5,8 +5,5 @@
     "types": ["mocha"]
   },
   "include": ["src/**/*"],
-  "exlucde": [".eslintrc.js"],
-  "ts-node": {
-    "files": true
-   }
+  "exlucde": ["src/examples", ".eslintrc.js", ".mocharc.js", "prettier.js"]
 }
