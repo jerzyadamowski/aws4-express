@@ -4,7 +4,7 @@ export const rawBodyFromVerify = (req: any, _res: any, buf: Buffer, encoding: st
   req.rawBody = buf.toString((encoding as BufferEncoding) || 'utf8') ?? '';
 };
 
-export const rawBodyFromStream = (req: Request & { rawBody: string }, _res: Response, next: NextFunction) => {
+export const rawBodyFromStream = (req: Request & { rawBody?: string }, _res: Response, next: NextFunction) => {
   if (req.rawBody) {
     return next();
   }
