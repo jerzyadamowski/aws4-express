@@ -4,8 +4,12 @@ export const rawBodyFromVerify = (req: any, _res: any, buf: Buffer, encoding: st
   req.rawBody = buf.toString((encoding as BufferEncoding) || 'utf8') ?? '';
 };
 
-export const rawBodyFromStream = (req: Request, _res: Response, next: NextFunction) => {
-  (req as any).rawBody = '';
+export const rawBodyFromStream = (req: Request & { rawBody?: string }, _res: Response, next: NextFunction) => {
+  if (req.rawBody) {
+    return next();
+  }
+
+  req.rawBody = '';
 
   req.setEncoding('utf8');
 
@@ -14,6 +18,10 @@ export const rawBodyFromStream = (req: Request, _res: Response, next: NextFuncti
   });
 
   req.on('end', () => {
+    next();
+  });
+
+  req.on('error', () => {
     next();
   });
 };

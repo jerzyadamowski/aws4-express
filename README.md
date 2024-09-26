@@ -1,13 +1,12 @@
 # aws4-express
 Express middleware handlers for validation AWS Signature V4. Your web app can mimic AWS services, and you can use benefit from already well-defined standard to securing web API.
 
-
 At this moment, library is based on general version of aws4 signature:
 [Authenticating Requests (AWS Signature Version 4)](https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html)
 
-### Alpha stage
+### Beta stage
 Until we hit >=1.x.x, there could be possible breaking changes on minor changes.
-Use at least 0.5.2 version.
+Use at least 0.8.0 version.
 
 ## Install
 
@@ -31,6 +30,7 @@ If you use express parsers like `express.raw()` or `express.json()` or `express.
   // when json parser u may use like this
   app.use(
     express.json({
+      type: '*/*',
       verify: rawBodyFromVerify,
     }),
   );
@@ -46,6 +46,8 @@ If you use express parsers like `express.raw()` or `express.json()` or `express.
   // or when url encoded body u may use like this
   app.use(
     express.urlencoded({
+      extended: true,
+      type: '*/*',
       verify: rawBodyFromVerify,
     }),
   );
@@ -71,6 +73,10 @@ If you use express parsers like `express.raw()` or `express.json()` or `express.
 
   return app;
 ```
+
+## Example:
+
+- [simpleIntegration.ts](/src/examples/simpleIntegration.ts)
 
 ## Features:
 
