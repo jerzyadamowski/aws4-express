@@ -76,7 +76,7 @@ If you use express parsers like `express.raw()` or `express.json()` or `express.
 
 ## Example:
 
-```- [simpleIntegration.ts](href://src/examples/simpleIntegration.ts)```
+- [simpleIntegration.ts](/tree/main/src/index.ts)
 
 ## Features:
 
