@@ -1,9 +1,46 @@
 {
-  "extends": "./tsconfig.lib.json",
   "compilerOptions": {
     "outDir": "dist",
-    "types": ["mocha"]
+
+    // Project Options
+    "declaration": true,
+    "lib": ["ES2023"],
+    "module": "commonjs",
+    "sourceMap": true,
+    "target": "es6",
+
+    // Strict Checks
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strict": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // Module Resolution
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "typeRoots": ["node_modules/@types"],
+    "types": ["mocha"],
+
+    // Linter Checks
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+
+    // Experimental
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+
+    // Advanced
+    "resolveJsonModule": true
   },
   "include": ["src/**/*"],
-  "exlucde": ["src/examples", ".eslintrc.js", ".mocharc.js", "prettier.js"]
+  "exlucde": ["examples/**/*", "test/**/*", ".eslintrc.js", ".mocharc.js", "prettier.js"]
 }
