@@ -79,7 +79,7 @@ if (require.main === module) {
       secretAccessKey: 'xyz',
     });
 
-    // send request wirh signed params to express server
+    // send request with signed params to express server
     try {
       const response = await fetch(`http://${host}:${port}`, {
         method: 'POST',
@@ -92,9 +92,11 @@ if (require.main === module) {
 
       console.info(`HTTP CODE: ${response.status}`);
       console.info(await response.text());
+      process.exit(0);
     } catch (e) {
       console.error(e);
+      process.exit(1);
     }
   });
-  console.debug(`Server started on port ${port}`);
+  console.info(`Server started on port ${port}`);
 }
