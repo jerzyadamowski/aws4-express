@@ -117,9 +117,113 @@ Pull Requests are welcome.
 
 ## Documentation
 
-```typescript
-// FIX ME: create link do .d.ts file
+# awsVerify Function Documentation
+
+## Overview
+
+The `awsVerify` function is an Express.js middleware that verifies AWS signatures in incoming requests.
+
+## Usage
+
+```javascript
+import { awsVerify } from 'aws4-express';
+
+app.use(awsVerify(options));
 ```
+
+## Parameters
+
+- `options`: An object of type `AwsVerifyOptions`
+
+## Return Value
+
+Returns an Express.js middleware function.
+
+## Configuration: AwsVerifyOptions
+
+The `AwsVerifyOptions` object can contain the following fields:
+
+### secretKey (required)
+
+- Type: `(message: AwsIncomingMessage, req: Request, res: Response, next: NextFunction) => Promise<string | undefined> | string | undefined`
+- Description: Callback for retrieving the secret key. Should return the secret key based on incoming parameters or `undefined` if the key is not available.
+
+### headers (optional)
+
+- Type: `(headers: Dictionary) => Promise<Dictionary> | Dictionary`
+- Description: Callback for modifying incoming headers before the parsing process.
+
+### enabled (optional)
+
+- Type: `(req: Request) => Promise<boolean> | boolean`
+- Description: Function determining whether AWS signature validation should be performed. If it returns `false`, validation will be skipped.
+
+### onMissingHeaders (optional)
+
+- Type: `(req: Request, res: Response, next: NextFunction) => Promise<void> | void`
+- Description: Custom response when required headers are missing.
+- Default: Sends a 400 status with the message "Required headers are missing".
+
+### onSignatureMismatch (optional)
+
+- Type: `(req: Request, res: Response, next: NextFunction) => Promise<void> | void`
+- Description: Custom response when the signature doesn't match.
+- Default: Sends a 401 status with the message "The signature does not match".
+
+### onExpired (optional)
+
+- Type: `(req: Request, res: Response, next: NextFunction) => Promise<void> | void`
+- Description: Custom response when the signature has expired.
+- Default: Sends a 401 status with the message "Request is expired".
+
+### onBeforeParse (optional)
+
+- Type: `(req: Request, res: Response, next: NextFunction) => Promise<boolean> | boolean`
+- Description: Callback invoked before the standard parser. If it returns `false`, validation will be stopped.
+- Default: Always returns `true`.
+
+### onAfterParse (optional)
+
+- Type: `(message: AwsIncomingMessage, req: Request, res: Response, next: NextFunction) => Promise<boolean> | boolean`
+- Description: Callback invoked after the standard parser completes. If it returns `false`, validation will be stopped.
+- Default: Always returns `true`.
+
+### onSuccess (optional)
+
+- Type: `(message: AwsIncomingMessage | undefined, req: Request, res: Response, next: NextFunction) => Promise<void> | void`
+- Description: Callback invoked after successful signature validation.
+- Default: Calls `next()`.
+
+## Example
+
+```javascript
+import express from 'express';
+import { awsVerify, rawBodyFromVerify } from 'aws4-express';
+
+const app = express();
+
+app.use(express.json({ type: '*/*', verify: rawBodyFromVerify }));
+
+app.use(awsVerify({
+  secretKey: async (message) => {
+    // Implement secret key retrieval logic
+    return 'your_secret_key';
+  },
+  onSignatureMismatch: (req, res) => {
+    res.status(403).send('Unauthorized');
+  }
+}));
+
+app.get('/', (req, res) => {
+  res.send('Hello, AWS-verified world!');
+});
+
+app.listen(3000, () => {
+  console.log('Server is running on port 3000');
+});
+```
+
+In this example, the `awsVerify` middleware is used to verify the AWS signature for all incoming requests. A custom `secretKey` function is used to provide the secret key, and `onSignatureMismatch` defines a custom response for signature mismatch cases.
 
 ### awsVerify:
 

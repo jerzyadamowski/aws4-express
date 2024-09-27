@@ -79,7 +79,7 @@ if (require.main === module) {
       secretAccessKey: 'xyz',
     });
 
-    // send request wirh signed params to express server
+    // send request with signed params to express server
     try {
       const response = await fetch(`http://${host}:${port}`, {
         method: 'POST',
