@@ -375,10 +375,7 @@ export class AwsSignature {
       path = path.slice(0, queryIx);
     }
 
-    return {
-      path,
-      query,
-    };
+    return { path, query };
   };
 
   protected canonicalQueryString = () => {
@@ -453,7 +450,13 @@ export class AwsSignature {
   protected hmac = (secretKey: BinaryLike | KeyObject, data: string) =>
     crypto.createHmac('sha256', secretKey).update(data, 'utf8').digest();
 
-  protected hash = (data: string) => crypto.createHash('sha256').update(data, 'utf8').digest('hex');
+  protected hash(data: string | Buffer): string {
+    if (Buffer.isBuffer(data)) {
+      return crypto.createHash('sha256').update(data).digest('hex');
+    } else {
+      return crypto.createHash('sha256').update(data, 'utf8').digest('hex');
+    }
+  }
 
   protected expires = (dateTime: string, expires: number | undefined): boolean => {
     if (!expires) {

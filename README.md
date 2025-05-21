@@ -21,7 +21,7 @@ npm install aws4-express
 
 There are prepared helpers to handle the original body with any changes, because if you change a single character, your request won't be valid anymore.
 
-If you use express parsers like `express.raw()` or `express.json()` or `express.urlencoded` you can attach with handler `rawBodyFromVerify`. You can also write own stream parser or use our `rawBodyFromStream`.
+If you use express parsers like `express.raw()` or `express.json()` or `express.urlencoded` you can attach with handler `rawBodyFromVerify`. You can also write own stream parser or use our `rawBodyFromStream` as long as you attach `rawBody: string | Buffer` to request object.
 
 ```typescript
   import express from 'express';

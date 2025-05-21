@@ -2,11 +2,11 @@ import http from 'http';
 import express, { NextFunction, Request, Response } from 'express';
 import request from 'supertest';
 import { sign, Request as Aws4Request, Credentials as Aws4Credentials } from 'aws4';
-import { awsVerify, AwsVerifyOptions, rawBodyFromStream, rawBodyFromVerify } from '../..';
+import { awsVerify, AwsVerifyOptions, rawBodyBufferFromStream, rawBodyFromStream, rawBodyFromVerify } from '../..';
 
 export const methods = ['get', 'post', 'put', 'delete'] as const;
 export type MethodTypes = (typeof methods)[number];
-export const parsers = ['json', 'urlencoded', 'raw', 'custom', 'none'] as const;
+export const parsers = ['json', 'urlencoded', 'raw', 'customString', 'customBuffer', 'none'] as const;
 export type ParserTypes = (typeof parsers)[number];
 
 export interface ExpressAppOptions {
@@ -20,38 +20,26 @@ const expressApp = (optionsAwsVerify: AwsVerifyOptions, optionsExpress: ExpressA
   const app = express();
   switch (optionsExpress.parser) {
     case 'json': {
-      app.use(
-        express.json({
-          type: '*/*',
-          verify: rawBodyFromVerify,
-        }),
-      );
+      app.use(express.json({ type: '*/*', verify: rawBodyFromVerify }));
       break;
     }
     case 'urlencoded': {
-      app.use(
-        express.urlencoded({
-          extended: true,
-          type: '*/*',
-          verify: rawBodyFromVerify,
-        }),
-      );
+      app.use(express.urlencoded({ extended: true, type: '*/*', verify: rawBodyFromVerify }));
       break;
     }
     case 'raw': {
-      app.use(
-        express.raw({
-          type: '*/*',
-          verify: rawBodyFromVerify,
-        }),
-      );
+      app.use(express.raw({ type: '*/*', verify: rawBodyFromVerify }));
       break;
     }
     case 'none': {
       break;
     }
-    case 'custom': {
+    case 'customString': {
       app.use(rawBodyFromStream);
+      break;
+    }
+    case 'customBuffer': {
+      app.use(rawBodyBufferFromStream);
       break;
     }
     default: {

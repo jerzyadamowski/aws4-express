@@ -5,6 +5,10 @@ module.exports = {
     node: true,
     es2017: true,
     es2020: true,
+    es2021: true,
+    es2022: true,
+    es2023: true,
+    es2024: true,
     mocha: true,
   },
   extends: [
@@ -12,57 +16,21 @@ module.exports = {
     'plugin:prettier/recommended',
   ],
   parser: '@typescript-eslint/parser',
-  parserOptions: {
-    project: ['tsconfig*.json', '**/tsconfig*.json'],
-    sourceType: 'module',
-  },
-  plugins: [
-    'eslint-plugin-jsdoc',
-    'eslint-plugin-prefer-arrow',
-    'eslint-plugin-import',
-    'json-format',
-    '@typescript-eslint',
-  ],
+  parserOptions: { project: ['tsconfig*.json', '**/tsconfig*.json'], sourceType: 'module' },
+  plugins: ['eslint-plugin-jsdoc', 'eslint-plugin-prefer-arrow', 'eslint-plugin-import', '@typescript-eslint'],
   rules: {
     '@typescript-eslint/no-floating-promises': ['error'],
     '@typescript-eslint/adjacent-overload-signatures': 'error',
-    '@typescript-eslint/array-type': [
-      'error',
-      {
-        default: 'array-simple',
-      },
-    ],
-    '@typescript-eslint/ban-types': [
-      'error',
-      {
-        extendDefaults: true,
-        types: {
-          object: false,
-        },
-      },
-    ],
+    '@typescript-eslint/array-type': ['error', { default: 'array-simple' }],
+    '@typescript-eslint/ban-types': ['error', { extendDefaults: true, types: { object: false } }],
     '@typescript-eslint/consistent-type-assertions': 'error',
     '@typescript-eslint/consistent-type-definitions': 'error',
     '@typescript-eslint/dot-notation': 'error',
-    '@typescript-eslint/explicit-member-accessibility': [
-      'error',
-      {
-        accessibility: 'explicit',
-      },
-    ],
+    '@typescript-eslint/explicit-member-accessibility': ['error', { accessibility: 'explicit' }],
     '@typescript-eslint/indent': 'off',
     '@typescript-eslint/member-delimiter-style': [
       'off',
-      {
-        multiline: {
-          delimiter: 'none',
-          requireLast: true,
-        },
-        singleline: {
-          delimiter: 'semi',
-          requireLast: false,
-        },
-      },
+      { multiline: { delimiter: 'none', requireLast: true }, singleline: { delimiter: 'semi', requireLast: false } },
     ],
     '@typescript-eslint/member-ordering': 'error',
     '@typescript-eslint/naming-convention': 'off',
@@ -72,12 +40,7 @@ module.exports = {
     '@typescript-eslint/no-misused-new': 'error',
     '@typescript-eslint/no-namespace': 'error',
     '@typescript-eslint/no-parameter-properties': 'off',
-    '@typescript-eslint/no-shadow': [
-      'error',
-      {
-        hoist: 'all',
-      },
-    ],
+    '@typescript-eslint/no-shadow': ['error', { hoist: 'all' }],
     '@typescript-eslint/no-unused-expressions': 'error',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-var-requires': 'error',
@@ -86,14 +49,7 @@ module.exports = {
     '@typescript-eslint/prefer-namespace-keyword': 'error',
     '@typescript-eslint/quotes': 'off',
     '@typescript-eslint/semi': ['off', null],
-    '@typescript-eslint/triple-slash-reference': [
-      'error',
-      {
-        path: 'always',
-        types: 'prefer-import',
-        lib: 'always',
-      },
-    ],
+    '@typescript-eslint/triple-slash-reference': ['error', { path: 'always', types: 'prefer-import', lib: 'always' }],
     '@typescript-eslint/type-annotation-spacing': 'off',
     '@typescript-eslint/unified-signatures': 'error',
     'arrow-body-style': 'error',
@@ -174,13 +130,7 @@ module.exports = {
     radix: 'error',
     'space-before-function-paren': 'off',
     'space-in-parens': ['off', 'never'],
-    'spaced-comment': [
-      'error',
-      'always',
-      {
-        markers: ['/'],
-      },
-    ],
+    'spaced-comment': ['error', 'always', { markers: ['/'] }],
     'use-isnan': 'error',
     'valid-typeof': 'error',
   },
