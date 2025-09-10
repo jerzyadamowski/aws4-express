@@ -42,5 +42,5 @@
     "resolveJsonModule": true
   },
   "include": ["src/**/*"],
-  "exlucde": [".eslintrc.js", ".mocharc.js", "prettier.js"]
+  "exclude": [".eslintrc.js", ".mocharc.js", "prettier.js", "eslint.config.js"]
 }
