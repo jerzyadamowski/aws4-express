@@ -35,7 +35,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - run: npm ci # Need dependencies to run script if needed, or just minimal
@@ -66,8 +66,6 @@ jobs:
         if: steps.extract.outputs.exists == 'false'
         run: |
           npm publish --provenance
-        # env:
-        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
       - name: Create GitHub Release
         if: steps.extract.outputs.exists == 'false'
