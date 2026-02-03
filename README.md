@@ -20,7 +20,76 @@ Use at least 0.8.0 version.
 npm install aws4-express
 ```
 
-## Use
+## 🚀 Quick Start: Secure Your API in 3 Steps
+
+Imagine you have a secret club (your API). To get in, you need a secret password (AWS Signature V4).
+
+### Step 1: The Keys 🔑
+You manage your own keys. Let's say you have a user with:
+- **Access Key ID**: `MY_COOL_KEY`
+- **Secret Access Key**: `MY_SUPER_SECRET`
+
+### Step 2: The Server (The Bouncer) 🛡️
+Your Express app needs to know how to check these keys.
+
+```typescript
+// app.ts
+import express from 'express';
+import { awsVerify, rawBodyFromVerify } from 'aws4-express';
+
+const app = express();
+
+// 1. Important: We need the raw body to check the signature!
+app.use(express.json({ verify: rawBodyFromVerify }));
+
+// 2. Add the security middleware
+app.use(awsVerify({
+  secretKey: (message) => {
+    // 3. Find the secret for the incoming Access Key
+    // In a real app, look this up in your DB
+    if (message.accessKey === 'MY_COOL_KEY') {
+      return 'MY_SUPER_SECRET';
+    }
+    return undefined; // Unknown key? Access denied! 🚫
+  }
+}));
+
+// 4. If they pass, they get here!
+app.get('/secret-club', (req, res) => {
+  res.send('Welcome to the VIP area! 🎉');
+});
+
+app.listen(3000);
+```
+
+### Step 3: The Client (The Visitor) 🎫
+You can't just knock. You need to sign your request.
+
+**Using `aws4` library (Node.js client):**
+
+```typescript
+import aws4 from 'aws4';
+import https from 'https';
+
+// 1. Create the signed request options
+const opts = aws4.sign({
+  service: 'execute-api',
+  path: '/secret-club',
+  method: 'GET',
+  headers: { 'Content-Type': 'application/json' }
+}, {
+  accessKeyId: 'MY_COOL_KEY',
+  secretAccessKey: 'MY_SUPER_SECRET'
+});
+
+// 2. Send it!
+https.request(opts, res => res.pipe(process.stdout)).end();
+```
+
+**Using `curl`?**
+AWS Signature V4 is complex to calculate manually in `curl`. We recommend using a tool like Postman (which has "AWS Signature" auth type) or a library like `aws4`.
+
+## Detailed Usage
 
 There are prepared helpers to handle the original body with any changes, because if you change a single character, your request won't be valid anymore.
 
