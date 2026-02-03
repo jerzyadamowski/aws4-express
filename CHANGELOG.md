@@ -2,6 +2,12 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.13.1] - 2026-02-03
+
+### Changed
+- **Node.js Support**: Introduced support for Node.js 24. This is the version that will be supported going forward.
+- Release updates for internal pipeline configuration.
+
 ## [0.13.0] - 2026-02-03
 
 ### Security
