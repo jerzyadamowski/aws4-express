@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
-      
+
       - run: npm ci # Need dependencies to run script if needed, or just minimal
 
       - name: Extract Release Info
@@ -45,7 +45,7 @@ jobs:
           npx tsx scripts/extract-release.ts
           VERSION=$(grep "VERSION=" <(npx tsx scripts/extract-release.ts) | cut -d= -f2)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-          
+
           # Check if tag exists
           git fetch --tags
           if git rev-parse "v$VERSION" >/dev/null 2>&1; then
@@ -64,8 +64,8 @@ jobs:
       - name: Publish to NPM
         if: steps.extract.outputs.exists == 'false'
         run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        # env:
+        #   NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
       - name: Create GitHub Release
         if: steps.extract.outputs.exists == 'false'
