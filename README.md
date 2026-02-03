@@ -1,4 +1,8 @@
 # aws4-express
+
+[![npm version](https://img.shields.io/npm/v/aws4-express.svg)](https://www.npmjs.com/package/aws4-express)
+[![Known Vulnerabilities](https://snyk.io/test/npm/aws4-express/badge.svg)](https://snyk.io/test/npm/aws4-express)
+
 This library is about to create on security layer of your API using well defined comunication standard known as AWS Signature V4.
 
 We provide Express middleware handler `awsVerify` for validation your `AWS Signature V4` with your access and secret pair of key. So, your web app can mimic AWS services, and you can use benefits from already well-defined standard to securing your web API.
@@ -11,7 +15,7 @@ Until we hit >=1.x.x, there could be possible breaking changes on minor changes.
 Use at least 0.8.0 version.
 
 ## Requirements
-- Node.js >= 20.x
+- Node.js >= 24.x
 
 ## Install
 
