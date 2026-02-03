@@ -15,7 +15,10 @@ describe('awsVerify', () => {
 
   beforeEach(() => {
     sandbox = sinon.createSandbox();
-    clock = sinon.useFakeTimers(new Date('2023-01-01T00:00:00Z'));
+    clock = sinon.useFakeTimers({
+      now: new Date('2023-01-01T00:00:00Z'),
+      toFake: ['Date'],
+    });
   });
 
   afterEach(() => {

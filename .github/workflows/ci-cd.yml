@@ -1,0 +1,80 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.x] # Strict requirement
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+      - run: npm test
+
+  release:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      
+      - run: npm ci # Need dependencies to run script if needed, or just minimal
+
+      - name: Extract Release Info
+        id: extract
+        run: |
+          npx tsx scripts/extract-release.ts
+          VERSION=$(grep "VERSION=" <(npx tsx scripts/extract-release.ts) | cut -d= -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Check if tag exists
+          git fetch --tags
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION already exists."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "New version detected: $VERSION"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update package.json version
+        if: steps.extract.outputs.exists == 'false'
+        run: |
+          npm version ${{ steps.extract.outputs.version }} --no-git-tag-version --allow-same-version
+
+      - name: Publish to NPM
+        if: steps.extract.outputs.exists == 'false'
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+
+      - name: Create GitHub Release
+        if: steps.extract.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.extract.outputs.version }}
+          name: v${{ steps.extract.outputs.version }}
+          body_path: RELEASE_BODY.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

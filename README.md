@@ -10,6 +10,9 @@ At this moment, library is based on general version of aws4 signature:
 Until we hit >=1.x.x, there could be possible breaking changes on minor changes.
 Use at least 0.8.0 version.
 
+## Requirements
+- Node.js >= 20.x
+
 ## Install
 
 
