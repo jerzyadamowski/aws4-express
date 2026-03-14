@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.14.0] - 2026-03-14
+
+### Changed
+- **Node.js Support**: Restored support for Node.js >= 20. The strict engine requirement (Node 20.x or 24.x) has been broadened to allow any Node version >= 20.
+
 ## [0.13.1] - 2026-02-03
 
 ### Changed

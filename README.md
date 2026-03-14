@@ -15,7 +15,7 @@ Until we hit >=1.x.x, there could be possible breaking changes on minor changes.
 Use at least 0.8.0 version.
 
 ## Requirements
-- Node.js >= 24.x
+- Node.js >= 20
 
 ## Install
 
