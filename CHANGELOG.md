@@ -2,6 +2,11 @@
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/), and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.14.1] - 2026-03-19
+
+### Fixed
+- **Package Entrypoint**: Corrected the published `main` field to point to `dist/src/index.js`, matching the actual build output.
+
 ## [0.14.0] - 2026-03-14
 
 ### Changed
