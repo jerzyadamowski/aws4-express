@@ -2,7 +2,7 @@
   "name": "aws4-express",
   "version": "0.14.0",
   "description": "Express middleware handlers for validation AWS Signature V4",
-  "main": "dist/index.js",
+  "main": "dist/src/index.js",
   "engines": {
     "node": ">=20"
   },
