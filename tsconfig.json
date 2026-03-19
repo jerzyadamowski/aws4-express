@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "outDir": "dist",
+    "rootDir": "src",
 
     // Project Options
     "declaration": true,
@@ -41,6 +42,6 @@
     // Advanced
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "scripts/**/*"],
+  "include": ["src/**/*"],
   "exclude": [".eslintrc.js", ".mocharc.js", "prettier.js", "eslint.config.js"]
 }
